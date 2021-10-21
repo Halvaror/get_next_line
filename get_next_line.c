@@ -6,42 +6,19 @@
 /*   By: alopez-b <alopez-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/21 21:14:21 by alopez-b          #+#    #+#             */
-/*   Updated: 2021/10/16 16:19:56 by alopez-b         ###   ########.fr       */
+/*   Updated: 2021/10/21 19:46:21 by alopez-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-
-static char	*join_buff(char *buff, char *str, int fd)
-{
-	long long	i;
-	char 		*str2;
-
-	i = ft_strlen(buff);
-	str = calloc(sizeof(char), BUFFER_SIZE + 1);
-	if (!str)
-		return (NULL);
-	str2 = calloc(sizeof(char), i + 1);
-	if (!str2)
-		return (NULL);
-	read(fd, str, BUFFER_SIZE);
-	ft_memcpy(str2, buff, i);
-	free(buff);
-	buff = calloc(sizeof(char), (i + BUFFER_SIZE) + 1);
-	if (!buff)
-		return (NULL);
-	ft_memcpy(buff,str2,i);
-	free(str2);
-	buff = ft_strjoin(buff, str);
-	free (str);
-	return(buff);
-}
 
 static ssize_t	check_next_line(char *buff)
 {
 	ssize_t	i;
 
 	i = 0;
+	if (!buff)
+		return(-1);
 	while(buff[i] != '\0')
 	{
 		if (buff[i] == '\n')
@@ -50,87 +27,116 @@ static ssize_t	check_next_line(char *buff)
 	}
 	return (-1);
 }
-static char	*cut_buff(char *buff, ssize_t check)
+
+static char	*cut_str(char *buff)
 {
+	ssize_t	r;
+	char	*str;
+	
+	r = check_next_line(buff);
+	if (r == -1)
+		return (NULL);
+	str = (char *)ft_calloc(sizeof(char),(r + 2));
+	if (!str)
+		return (NULL);
+	ft_memcpy(str, buff, (r + 1));
+	return (str);
+}
+
+static char	*cut_buff(char *buff)
+{
+	ssize_t	r;
 	ssize_t	i;
 	char	*str2;
 
-	i = ft_strlen(&buff[check + 1]);
-	str2 = calloc(sizeof(char), (i + 1));
+	r = check_next_line(buff);
+	if (r == -1)
+		return(buff);
+	i = ft_strlen(&buff[r + 1]);
+	str2 = (char *)ft_calloc(sizeof(char), (i + 1));
 	if (!str2)
 		return (NULL);
-	ft_memcpy(str2, &buff[check + 1], i);
+	ft_memcpy(str2, &buff[r + 1], i);
 	free (buff);
-	buff = calloc (sizeof(char), (i + 1));
+	buff = (char *)ft_calloc (sizeof(char), (i + 1));
 	ft_memcpy(buff, str2, i);
 	free (str2);
 	return (buff);
 }
-static char	*cut_str(char *buff, char *str, ssize_t check)
+
+static char	*read_file(char *buff, char *str, ssize_t check, int fd)
 {
-	str = calloc(sizeof(char),(check + 1));
-	if (!str)
-		return (NULL);
-	ft_memcpy(str, buff, check);
-	return (str);
+	char	*tmp;
+	ssize_t	r;
+	long long	ln;
+
+	ln = ft_strlen(str);
+	while (check > 0)
+		{
+			if (!buff)
+			{
+				buff = (char *)ft_calloc(sizeof(char), (ln + 1));
+				if (!buff)
+					return (NULL);
+				ft_memcpy(buff, str, ln);
+			}
+			else
+			{
+				tmp = ft_strjoin(buff, str);
+				free(buff);
+				buff = tmp;
+			}
+			r = check_next_line(buff);
+			ft_bzero(str, BUFFER_SIZE);
+			check = read(fd, str, BUFFER_SIZE);
+		}
+	return (buff);
 }
 
 char	*get_next_line(int fd)
 {
-	static char			*buff;
-	static char			*str;
-	static ssize_t		check;
-	
-	if(!buff && check == 0)
-		return(str);
-	if (!buff)
+	static char	*buff;
+	char		*str;
+	ssize_t		check;
+
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	str = (char *)ft_calloc(sizeof(char) , (BUFFER_SIZE + 1));
+	if (!str)
+		return (NULL);
+	check = read(fd, str, BUFFER_SIZE);
+	buff = read_file(buff, str, check, fd);
+	free (str);
+	str = cut_str(buff);
+	buff = cut_buff(buff);
+	if( str == NULL && buff)
 	{
-		buff = calloc(sizeof(char), BUFFER_SIZE + 1);
-				if (!buff)
-					return (NULL);
-		check = read(fd, buff, BUFFER_SIZE);
-		str = get_next_line(fd);
+		str = (char *)ft_calloc(sizeof(char) , ((ft_strlen(buff)) + 1));
+		if (!str)
+			return (NULL);
+		ft_memcpy(str, buff, (ft_strlen(buff)));
+		free (buff);
+		buff = NULL;
 	}
-	else
-	{
-		check = check_next_line(buff);
-		if (check >= 0)
-		{
-			str = cut_str(buff, str,  check);
-			buff = cut_buff(buff, check);
-		}		
-		else
-		{
-			buff = join_buff(buff, str, fd);
-			str = get_next_line(fd);
-		}
-	}
-	if(check == 0)
-		if((check = check_next_line(buff)) == -1)
-		{
-			str = cut_str(buff, str, (ft_strlen(buff)));
-			free (buff);
-		}
-	
 	return (str);
 }
 
-int	main()
+/*int	main()
 {
 	int 	fd;
 	char 	*fichero;
 	
 	fd = open("/Users/alopez-b/Documents/Cursus/get_next_line/fichero.txt", O_RDONLY);
-	printf("frase: %s\n", fichero = get_next_line(fd));
-	while (fichero != 0)
+	printf("frase: %s", fichero = get_next_line(fd));
+	while (fichero != NULL)
 	{
-		free (fichero);
+		free(fichero);
 		fichero = get_next_line(fd);
-		printf("frase: %s\n", fichero);
+		printf("frase: %s", fichero);
 	}
 	close(fd);
 	free(fichero);
-	//system("leaks a.out");
+	system("leaks a.out");
 	return (0);
-}
+}*/
 
