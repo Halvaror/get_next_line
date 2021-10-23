@@ -6,7 +6,7 @@
 /*   By: alopez-b <alopez-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/21 21:14:21 by alopez-b          #+#    #+#             */
-/*   Updated: 2021/10/21 19:46:21 by alopez-b         ###   ########.fr       */
+/*   Updated: 2021/10/23 11:36:10 by alopez-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,17 +68,15 @@ static char	*read_file(char *buff, char *str, ssize_t check, int fd)
 {
 	char	*tmp;
 	ssize_t	r;
-	long long	ln;
 
-	ln = ft_strlen(str);
 	while (check > 0)
 		{
 			if (!buff)
 			{
-				buff = (char *)ft_calloc(sizeof(char), (ln + 1));
+				buff = (char *)ft_calloc(sizeof(char), (ft_strlen(str) + 1));
 				if (!buff)
 					return (NULL);
-				ft_memcpy(buff, str, ln);
+				ft_memcpy(buff, str, ft_strlen(str));
 			}
 			else
 			{
@@ -87,6 +85,8 @@ static char	*read_file(char *buff, char *str, ssize_t check, int fd)
 				buff = tmp;
 			}
 			r = check_next_line(buff);
+			if (r >= 0)
+				break;
 			ft_bzero(str, BUFFER_SIZE);
 			check = read(fd, str, BUFFER_SIZE);
 		}
@@ -127,16 +127,16 @@ char	*get_next_line(int fd)
 	char 	*fichero;
 	
 	fd = open("/Users/alopez-b/Documents/Cursus/get_next_line/fichero.txt", O_RDONLY);
-	printf("frase: %s", fichero = get_next_line(fd));
+	printf("%s", fichero = get_next_line(fd));
 	while (fichero != NULL)
 	{
 		free(fichero);
 		fichero = get_next_line(fd);
-		printf("frase: %s", fichero);
+		printf("%s", fichero);
 	}
 	close(fd);
 	free(fichero);
-	system("leaks a.out");
+	//system("leaks a.out");
 	return (0);
 }*/
 
