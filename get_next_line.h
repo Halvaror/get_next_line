@@ -6,7 +6,7 @@
 /*   By: alopez-b <alopez-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/21 21:15:06 by alopez-b          #+#    #+#             */
-/*   Updated: 2021/10/21 20:49:02 by alopez-b         ###   ########.fr       */
+/*   Updated: 2021/10/23 12:51:54 by alopez-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define GET_NEXT_LINE_H
 
 # ifndef BUFFER_SIZE
-# 	define BUFFER_SIZE 1
+#  define BUFFER_SIZE	1
 # endif
 
 # include <stdio.h>
