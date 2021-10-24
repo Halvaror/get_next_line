@@ -6,7 +6,7 @@
 /*   By: alopez-b <alopez-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/21 21:14:21 by alopez-b          #+#    #+#             */
-/*   Updated: 2021/10/23 12:51:46 by alopez-b         ###   ########.fr       */
+/*   Updated: 2021/10/24 18:59:00 by alopez-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,11 @@ static char	*cut_buff(char *buff)
 	if (r == -1)
 		return (buff);
 	i = ft_strlen(&buff[r + 1]);
+	if (i == 0)
+	{
+		free(buff);
+		return (NULL);
+	}
 	str2 = (char *)ft_calloc(sizeof(char), (i + 1));
 	if (!str2)
 		return (NULL);
@@ -120,23 +125,25 @@ char	*get_next_line(int fd)
 	}
 	return (str);
 }
-/*
-int	main()
-{
-	int 	fd;
-	char 	*fichero;
-	
-	fd = open("/Users/alopez-b/Documents/Cursus/get_next_line/fichero.txt", O_RDONLY);
-	fichero = get_next_line(fd);
-//	printf("%s", fichero = get_next_line(fd));
-	while (fichero != NULL)
-	{
-		printf("%s", fichero);
-		free(fichero);
-		fichero = get_next_line(fd);
-	}
-	close(fd);
-	free(fichero);
-	//system("leaks a.out");
-	return (0);
-}*/
+
+// int	main()
+// {
+// 	int 	fd;
+// 	char 	*fichero;
+// 	fd = open("fichero2.txt", O_RDONLY);
+// 	fichero = get_next_line(fd);
+// 	printf("%s", fichero);
+// 	free(fichero);
+// 	fichero = get_next_line(fd);
+// 	printf("%s", fichero);
+// 	// while (fichero != NULL)
+// 	// {
+// 	// 	printf("%s", fichero);
+// 	// 	free(fichero);
+// 	// 	fichero = get_next_line(fd);
+// 	// }
+// 	close(fd);
+// 	free(fichero);
+// 	system("leaks a.out");
+// 	return (0);
+// }
